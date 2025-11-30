@@ -1,0 +1,97 @@
+/* Body */
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background: #fff;
+    color: #000;
+    position: relative;
+}
+
+/* Page Header */
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Top-right Add button */
+.top-right-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 8px 15px;  /* smaller size */
+    font-size: 14px;
+    background: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.top-right-btn:hover { 
+    background: #0056b3; 
+}
+
+/* Category buttons centered */
+.nav {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.nav button {
+    margin: 0 8px;
+    padding: 8px 16px;   /* smaller size */
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #fff;
+    transition: 0.2s;
+}
+.nav button:hover { opacity: 0.8; }
+.nav button.active { font-weight: bold; }
+
+/* Category colors */
+#btn-movie.active { background: #007BFF; }       /* Blue */
+#btn-anime.active { background: #28a745; }       /* Green */
+#btn-webseries.active { background: #ffc107; color: #000; }  /* Yellow */
+
+/* Search bar */
+.search-bar { 
+    text-align: center; 
+    margin-bottom: 20px; 
+}
+.search-bar input {
+    padding: 10px;
+    width: 60%;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Cards grid */
+.container {
+    width: 90%;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+/* Individual card */
+.card {
+    background: #f0f0f0;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.card button {
+    padding: 5px 10px;
+    background: #a00;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.card button:hover { background: #f00; }
