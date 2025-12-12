@@ -12,17 +12,31 @@
     <input id="search" type="text" placeholder="Search movies...">
 </div>
 
+<div class="sort-bar">
+    <select id="sort">
+        <option value="az">Sort A → Z</option>
+        <option value="za">Sort Z → A</option>
+    </select>
+</div>
+
 <div class="container" id="list"></div>
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbzmunyyjve54SpI3ILzEF9tctld7wRXEGN6NyUrTq6VX_IERfLZa_Z-ed2dAh30lID84A/exec";
 
+let allMovies = [];
+
 // LOAD movies
 async function loadMovies() {
     const res = await fetch(API);
     const data = await res.json();
-    const movies = data.filter(item => item.category === "movie");
+    allMovies = data.filter(item => item.category === "movie");
 
+    displayMovies(allMovies);
+}
+
+// DISPLAY movies
+function displayMovies(movies) {
     const box = document.getElementById("list");
     box.innerHTML = "";
 
@@ -57,10 +71,25 @@ async function deleteItem(title) {
 // SEARCH
 document.getElementById("search").addEventListener("input", function() {
     const q = this.value.toLowerCase();
-    document.querySelectorAll(".card").forEach(card => {
-        card.style.display = card.textContent.toLowerCase().includes(q)
-            ? "block" : "none";
-    });
+
+    const filtered = allMovies.filter(m =>
+        m.title.toLowerCase().includes(q)
+    );
+
+    displayMovies(filtered);
+});
+
+// SORT
+document.getElementById("sort").addEventListener("change", function () {
+    let sorted = [...allMovies];
+
+    if (this.value === "az") {
+        sorted.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (this.value === "za") {
+        sorted.sort((a, b) => b.title.localeCompare(a.title));
+    }
+
+    displayMovies(sorted);
 });
 </script>
 
