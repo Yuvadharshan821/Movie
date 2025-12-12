@@ -12,32 +12,21 @@
     <input id="search" type="text" placeholder="Search movies...">
 </div>
 
-<!-- SORT BUTTONS -->
-<div class="sort-buttons">
-    <button onclick="sortAZ()">A → Z</button>
-    <button onclick="sortZA()">Z → A</button>
-</div>
-
 <div class="container" id="list"></div>
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbzmunyyjve54SpI3ILzEF9tctld7wRXEGN6NyUrTq6VX_IERfLZa_Z-ed2dAh30lID84A/exec";
 
-let moviesData = []; // store movies globally
-
 // LOAD movies
 async function loadMovies() {
     const res = await fetch(API);
     const data = await res.json();
-    moviesData = data.filter(item => item.category === "movie");
-    displayMovies(moviesData);
-}
+    const movies = data.filter(item => item.category === "movie");
 
-function displayMovies(list) {
     const box = document.getElementById("list");
     box.innerHTML = "";
 
-    list.forEach(m => {
+    movies.forEach(m => {
         const div = document.createElement("div");
         div.className = "card";
         div.innerHTML = `
@@ -59,26 +48,10 @@ async function deleteItem(title) {
 
     if (data.status === "deleted") {
         alert("Deleted Successfully!");
-        loadMovies(); 
+        loadMovies(); // refresh list
     } else {
         alert("Error: " + (data.message || "Try again"));
     }
-}
-
-// SORT A → Z
-function sortAZ() {
-    const sorted = [...moviesData].sort((a, b) =>
-        a.title.localeCompare(b.title)
-    );
-    displayMovies(sorted);
-}
-
-// SORT Z → A
-function sortZA() {
-    const sorted = [...moviesData].sort((a, b) =>
-        b.title.localeCompare(a.title)
-    );
-    displayMovies(sorted);
 }
 
 // SEARCH
