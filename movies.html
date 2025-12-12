@@ -1,22 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8" />
     <title>Movies</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+      /* tiny inline styles so it looks OK without your stylesheet */
+      body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+      .header { margin-bottom: 12px; }
+      .controls { display:flex; gap:10px; margin-bottom:12px; align-items:center; }
+      .search-bar input { padding:8px; width:280px; }
+      .sort-bar select { padding:8px; }
+      .container { display:flex; flex-direction:column; gap:8px; }
+      .card { padding:10px; border:1px solid #ddd; border-radius:6px; display:flex; justify-content:space-between; align-items:center; }
+      .card button { padding:6px 10px; border-radius:4px; border:1px solid #c33; background:#fff; cursor:pointer; }
+    </style>
 </head>
 <body>
 
 <h1 class="header">Movies</h1>
 
-<div class="search-bar">
-    <input id="search" type="text" placeholder="Search movies...">
-</div>
+<div class="controls">
+  <div class="search-bar">
+      <input id="search" type="text" placeholder="Search movies...">
+  </div>
 
-<div class="sort-bar">
-    <select id="sort">
-        <option value="az">Sort A → Z</option>
-        <option value="za">Sort Z → A</option>
-    </select>
+  <div class="sort-bar">
+      <select id="sort">
+          <option value="az">Sort A → Z</option>
+          <option value="za">Sort Z → A</option>
+      </select>
+  </div>
 </div>
 
 <div class="container" id="list"></div>
@@ -24,73 +38,119 @@
 <script>
 const API = "https://script.google.com/macros/s/AKfycbzmunyyjve54SpI3ILzEF9tctld7wRXEGN6NyUrTq6VX_IERfLZa_Z-ed2dAh30lID84A/exec";
 
-let allMovies = [];
+let allMovies = [];       // raw data from API (category === "movie")
+let currentQuery = "";    // current search text
+let currentSort = "az";   // "az" or "za"
 
-// LOAD movies
+// load movies from API
 async function loadMovies() {
-    const res = await fetch(API);
-    const data = await res.json();
-    allMovies = data.filter(item => item.category === "movie");
-
-    displayMovies(allMovies);
+    try {
+        const res = await fetch(API);
+        const data = await res.json();
+        allMovies = Array.isArray(data) ? data.filter(item => item.category === "movie") : [];
+        render(); // show after loading
+    } catch (err) {
+        console.error("Failed to load movies:", err);
+        document.getElementById("list").innerHTML = "<div class='card'>Failed to load movies.</div>";
+    }
 }
 
-// DISPLAY movies
+// apply search + sort and render
+function render() {
+    // apply search
+    const q = currentQuery.trim().toLowerCase();
+    let filtered = allMovies.filter(m => m.title && m.title.toLowerCase().includes(q));
+
+    // apply sort
+    filtered.sort((a, b) => {
+        // guard if title missing
+        const at = (a.title || "").toString();
+        const bt = (b.title || "").toString();
+        if (currentSort === "az") return at.localeCompare(bt);
+        return bt.localeCompare(at);
+    });
+
+    displayMovies(filtered);
+}
+
+// create DOM for movies; uses dataset + event delegation for delete
 function displayMovies(movies) {
     const box = document.getElementById("list");
     box.innerHTML = "";
 
+    if (movies.length === 0) {
+        box.innerHTML = "<div class='card'>No movies found.</div>";
+        return;
+    }
+
     movies.forEach(m => {
         const div = document.createElement("div");
         div.className = "card";
-        div.innerHTML = `
-            ${m.title} 
-            <button onclick="deleteItem('${m.title}')">Delete</button>
-        `;
+
+        // title section
+        const titleSpan = document.createElement("span");
+        titleSpan.textContent = m.title || "Untitled";
+
+        // delete button (no inline onclick, safe against quotes)
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = "Delete";
+        btn.dataset.title = m.title; // store title safely
+
+        // append
+        div.appendChild(titleSpan);
+        div.appendChild(btn);
         box.appendChild(div);
     });
 }
 
-loadMovies();
+// delegate clicks on delete buttons
+document.getElementById("list").addEventListener("click", function(e) {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    if (!btn.dataset.title) return;
 
-// DELETE function
+    deleteItem(btn.dataset.title);
+});
+
+// delete function — uses API and reloads, keeping sort/search state
 async function deleteItem(title) {
     if (!confirm(`Delete "${title}"?`)) return;
 
-    const res = await fetch(`${API}?action=delete&title=${encodeURIComponent(title)}`);
-    const data = await res.json();
+    try {
+        const res = await fetch(`${API}?action=delete&title=${encodeURIComponent(title)}`);
+        const data = await res.json();
 
-    if (data.status === "deleted") {
-        alert("Deleted Successfully!");
-        loadMovies(); // refresh list
-    } else {
-        alert("Error: " + (data.message || "Try again"));
+        if (data && data.status === "deleted") {
+            alert("Deleted Successfully!");
+            // remove from local array to avoid full refetch delay; then re-render
+            allMovies = allMovies.filter(m => m.title !== title);
+            render();
+            // If you prefer to re-fetch from server instead, uncomment:
+            // await loadMovies();
+        } else {
+            alert("Error: " + (data && data.message ? data.message : "Try again"));
+        }
+    } catch (err) {
+        console.error("Delete failed:", err);
+        alert("Delete failed. Check console.");
     }
 }
 
-// SEARCH
+// search listener
 document.getElementById("search").addEventListener("input", function() {
-    const q = this.value.toLowerCase();
-
-    const filtered = allMovies.filter(m =>
-        m.title.toLowerCase().includes(q)
-    );
-
-    displayMovies(filtered);
+    currentQuery = this.value;
+    render();
 });
 
-// SORT
+// sort listener
 document.getElementById("sort").addEventListener("change", function () {
-    let sorted = [...allMovies];
-
-    if (this.value === "az") {
-        sorted.sort((a, b) => a.title.localeCompare(b.title));
-    } else if (this.value === "za") {
-        sorted.sort((a, b) => b.title.localeCompare(a.title));
-    }
-
-    displayMovies(sorted);
+    currentSort = this.value;
+    render();
 });
+
+// initial load
+loadMovies();
 </script>
 
 </body>
