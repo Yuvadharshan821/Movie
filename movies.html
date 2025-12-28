@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,7 +10,7 @@
 <h1 class="header">Movies</h1>
 
 <div class="search-bar">
-    <input id="search" type="text" placeholder="Search anime...">
+    <input id="search" type="text" placeholder="Search movies...">
 </div>
 
 <div class="container" id="list"></div>
@@ -17,27 +18,27 @@
 <script>
 const API = "https://script.google.com/macros/s/AKfycbzmunyyjve54SpI3ILzEF9tctld7wRXEGN6NyUrTq6VX_IERfLZa_Z-ed2dAh30lID84A/exec";
 
-// LOAD anime
-async function loadMovie() {
+// LOAD movies
+async function loadMovies() {
     const res = await fetch(API);
     const data = await res.json();
-    const anime = data.filter(item => item.category === "movie");
+    const movies = data.filter(item => item.category === "movie");
 
     const box = document.getElementById("list");
     box.innerHTML = "";
 
-    anime.forEach(a => {
+    movies.forEach(m => {
         const div = document.createElement("div");
         div.className = "card";
         div.innerHTML = `
-            ${a.title} 
-            <button onclick="deleteItem('${a.title}')">Delete</button>
+            ${m.title}
+            <button onclick="deleteItem('${m.title}')">Delete</button>
         `;
         box.appendChild(div);
     });
 }
 
-loadMovie();
+loadMovies();
 
 // DELETE function
 async function deleteItem(title) {
@@ -48,7 +49,7 @@ async function deleteItem(title) {
 
     if (data.status === "deleted") {
         alert("Deleted Successfully!");
-        loadMovie(); // refresh list
+        loadMovies(); // refresh list
     } else {
         alert("Error: " + (data.message || "Try again"));
     }
@@ -66,5 +67,3 @@ document.getElementById("search").addEventListener("input", function() {
 
 </body>
 </html>
-
-
