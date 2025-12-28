@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Movies</title> <!-- Change title for each page -->
+    <title>Movies</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1 class="header">Movies</h1> <!-- Change heading for each page -->
+<h1 class="header">Movies</h1>
 
 <div class="search-bar">
     <input id="search" type="text" placeholder="Search movies...">
@@ -16,7 +16,7 @@
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbzmunyyjve54SpI3ILzEF9tctld7wRXEGN6NyUrTq6VX_IERfLZa_Z-ed2dAh30lID84A/exec";
-const CATEGORY = "movie"; // Change to "anime", "webseries", or "game" for other pages
+const CATEGORY = "movie";
 
 // LOAD ITEMS
 async function loadItems() {
@@ -31,7 +31,6 @@ async function loadItems() {
         const div = document.createElement("div");
         div.className = "card";
         div.innerHTML = `
-            <img src="${item.poster || 'default.jpg'}" style="width:100%; border-radius:8px; margin-bottom:5px;" />
             <strong>${item.title}</strong>
             <button onclick="deleteItem(${JSON.stringify(item.title)})">Delete</button>
         `;
@@ -43,31 +42,31 @@ loadItems();
 
 // DELETE FUNCTION
 async function deleteItem(title) {
-    if (!confirm(`Delete "${title}"?`)) return;
+    if (!confirm(\`Delete "\${title}"?\`)) return;
 
-    const res = await fetch(`${API}?action=delete&title=${encodeURIComponent(title)}`);
+    const res = await fetch(
+        \`\${API}?action=delete&title=\${encodeURIComponent(title)}\`
+    );
     const data = await res.json();
 
     if (data.status === "deleted") {
         alert("Deleted Successfully!");
-        loadItems(); // refresh list
+        loadItems();
     } else {
         alert("Error: " + (data.message || "Try again"));
     }
 }
 
 // SEARCH FUNCTION
-document.getElementById("search").addEventListener("input", function() {
+document.getElementById("search").addEventListener("input", function () {
     const q = this.value.toLowerCase();
     document.querySelectorAll(".card").forEach(card => {
         card.style.display = card.textContent.toLowerCase().includes(q)
-            ? "block" : "none";
+            ? "block"
+            : "none";
     });
 });
 </script>
 
 </body>
 </html>
-
-
-which name i should save here
