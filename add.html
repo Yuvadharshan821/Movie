@@ -1,1 +1,51 @@
-<!DOCTYPE html> <html> <head> <title>Add Item</title> <link rel="stylesheet" href="style.css"> </head> <body> <h1 class="header">Add Item</h1> <div class="add-form"> <input id="title" placeholder="Title" /> <select id="category"> <option value="movie">Movie</option> <option value="anime">Anime</option> <option value="webseries">Web Series</option> <option value="game">Game</option> </select> <button onclick="addItem()">Add</button> </div> <script> const API = "https://script.google.com/macros/s/AKfycbzmunyyjve54SpI3ILzEF9tctld7wRXEGN6NyUrTq6VX_IERfLZa_Z-ed2dAh30lID84A/exec"; async function addItem() { const title = document.getElementById("title").value.trim(); const category = document.getElementById("category").value; if (!title) { alert("Enter a title!"); return; } const res = await fetch(${API}?action=add&title=${encodeURIComponent(title)}&category=${encodeURIComponent(category)}); const data = await res.json(); if (data.status === "added") { alert("Added Successfully!"); document.getElementById("title").value = ""; } else { alert("Error: " + (data.message || "Try again")); } } </script> </body> </html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Item</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1 class="header">Add Item</h1>
+
+<div class="add-form">
+    <input id="title" placeholder="Title" />
+    <select id="category">
+        <option value="movie">Movie</option>
+        <option value="anime">Anime</option>
+        <option value="webseries">Web Series</option>
+        <option value="game">Game</option>
+    </select>
+    <button id="addBtn">Add</button>
+</div>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbzmunyyjve54SpI3ILzEF9tctld7wRXEGN6NyUrTq6VX_IERfLZa_Z-ed2dAh30lID84A/exec";
+
+document.getElementById("addBtn").addEventListener("click", async function() {
+    const title = document.getElementById("title").value.trim();
+    const category = document.getElementById("category").value;
+
+    if (!title) {
+        alert("Enter a title!");
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API}?action=add&title=${encodeURIComponent(title)}&category=${encodeURIComponent(category)}`);
+        const data = await res.json();
+
+        if (data.status === "added") {
+            alert("Added Successfully!");
+            document.getElementById("title").value = "";
+        } else {
+            alert("Error: " + (data.message || "Try again"));
+        }
+    } catch (err) {
+        alert("Error: " + err.message);
+    }
+});
+</script>
+
+</body>
+</html>
