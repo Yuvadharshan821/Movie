@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Games</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1 class="header">Games</h1>
+
+<div class="search-bar">
+    <input id="search" type="text" placeholder="Search games...">
+</div>
+
+<div class="container" id="list"></div>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbzmunyyjve54SpI3ILzEF9tctld7wRXEGN6NyUrTq6VX_IERfLZa_Z-ed2dAh30lID84A/exec";
+
+// LOAD games
+async function loadGames() {
+    const res = await fetch(API);
+    const data = await res.json();
+    const games = data.filter(item => item.category === "game");
+
+    const box = document.getElementById("list");
+    box.innerHTML = "";
+
+    games.forEach(g => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+            ${g.title}
+            <button onclick="deleteItem('${g.title}')">Delete</button>
+        `;
+        box.appendChild(div);
+    });
+}
+
+loadGames();
+
+// DELETE
+async function deleteItem(title) {
+    if (!confirm(`Delete "${title}"?`)) return;
+
+    const res = await fetch(`${API}?action=delete&title=${encodeURIComponent(title)}`);
+    const data = await res.json();
+
+    if (data.status === "deleted") {
+        alert("Deleted Successfully!");
+        loadGames();
+    } else {
+        alert("Error deleting");
+    }
+}
+
+// SEARCH
+document.getElementById("search").addEventListener("input", function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll(".card").forEach(card => {
+        card.style.display = card.textContent.toLowerCase().includes(q)
+            ? "block" : "none";
+    });
+});
+</script>
+
+</body>
+</html>
