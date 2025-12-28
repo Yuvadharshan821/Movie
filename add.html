@@ -32,7 +32,7 @@ document.getElementById("addBtn").addEventListener("click", async function() {
     }
 
     try {
-        const res = await fetch(`${API}?action=add&title=${encodeURIComponent(title)}&category=${encodeURIComponent(category)}`);
+        const res = await fetch(API + "?action=add&title=" + encodeURIComponent(title) + "&category=" + encodeURIComponent(category));
         const data = await res.json();
 
         if (data.status === "added") {
@@ -49,3 +49,4 @@ document.getElementById("addBtn").addEventListener("click", async function() {
 
 </body>
 </html>
+
